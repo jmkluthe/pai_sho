@@ -1,15 +1,4 @@
-from flask import Flask
-
-app = Flask(__name__)
-
-#from webapp import routes
-
-
-@app.route('/')
-@app.route('/index')
-def index():
-    return 'hello from webapp!'
-
+from webapp.app import app
 
 app.run('localhost', 5001)
 
