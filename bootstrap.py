@@ -1,8 +1,11 @@
 from subprocess import call
 import webapp.run
-import webapi.run
-
-#call(['gnome-terminal', '-x', 'python', '-m', 'webapp'])
-
-#call(['gnome-terminal', '-x', 'python', '-m', 'webapi'])
-
+# import webapi
+#
+#
+#
+#
+# call(['gnome-terminal', '-x', 'python', 'webapp.run.py'])
+#
+# call(['gnome-terminal', '-x', 'python', 'webapi.run.py'])
+#

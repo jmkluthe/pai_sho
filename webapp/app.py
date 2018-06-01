@@ -6,7 +6,7 @@ app = Flask(__name__)
 # loader = jinja2.ChoiceLoader([
 #     app.jinja_loader,
 #     jinja2.FileSystemLoader(
-#         '/index/templates'
+#         'templates/*'
 #     )
 # ])
 #
