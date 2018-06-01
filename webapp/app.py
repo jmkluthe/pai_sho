@@ -1,8 +1,17 @@
 from flask import Flask
+import jinja2
 
 app = Flask(__name__)
 
-#from webapp import routes
+# loader = jinja2.ChoiceLoader([
+#     app.jinja_loader,
+#     jinja2.FileSystemLoader(
+#         '/index/templates'
+#     )
+# ])
+#
+# app.jinja_loader = loader
 
 
-from webapp.index import index
+from webapp.controllers import index
+
