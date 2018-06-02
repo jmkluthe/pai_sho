@@ -8,6 +8,6 @@ root_folder = "index/"
 @app.route('/')
 @app.route('/index')
 def index():
-    message = {'message': 'FUCK YOU'}
+    message = {'message': 'nexxium'}
     return render_template(root_folder + 'index.html', message=message)
 

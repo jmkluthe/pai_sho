@@ -1,0 +1,14 @@
+<html>
+    <head>
+      {% if title %}
+      <title>{{ title }} - Pai Sho</title>
+      {% else %}
+      <title>Pai Sho</title>
+      {% endif %}
+    </head>
+    <body>
+        <div>Pai Sho: <a href="/index">Home</a></div>
+        <hr>
+        {% block content %}{% endblock %}
+    </body>
+</html>
