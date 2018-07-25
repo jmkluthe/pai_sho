@@ -1,4 +1,4 @@
-.diagonal {
+.space {
     z-index: 1;
     position: absolute;
     width: 40px;
@@ -7,13 +7,35 @@
     margin-left: 4.1417px;
     margin-right: 4.1417x;
     display: inline-block;
-    opacity: 0.4;
     transform: rotate(-45deg);
     text-align: center;
 }
 
-.diagonal:hover {
-    background-color: blue;
+.overlay {
+    opacity: 0.5;
+    z-index: 2;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+}
+
+.overlay:hover {
+    background-color: grey;
+}
+
+.overlay.selectable:hover {
+    background-color: yellow;
+}
+
+.overlay.selected {
+    background-color: red;
+}
+
+.overlay.selected:hover {
+    background-color: DarkOrchid;
 }
 
 #background-container {
@@ -29,7 +51,7 @@
     position: relative;
     width: 720px;
     height: 720px;
-    /*text-align: center;*/
+    text-align: center;
 }
 
 #space-container {

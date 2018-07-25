@@ -1,0 +1,36 @@
+<script type="text/x-template" id="boardTemplate">
+
+    <div id="board-container">
+        <space
+                v-for="(space, index) in board"
+                :key="`space-${index}`"
+                v-bind:space="space"
+                v-bind:piece_selected="state.piece_selected"
+                v-on:move="move"
+                v-on:select="select">
+        </space>
+        <div id="background-container"></div>
+    </div>
+
+</script>
+
+<script type="text/x-template" id="spaceTemplate">
+
+    <div
+            class="space"
+            v-bind:style="style"
+            v-on:click="parse_click">
+        <piece
+                v-bind:piece="space.piece"
+                v-if="space.hasPiece">
+        </piece>
+        <div v-bind:class="overlayClasses"></div>
+    </div>
+
+</script>
+
+<script type="text/x-template" id="pieceTemplate">
+
+    <div class="piece" v-bind:style="style"></div>
+
+</script>
