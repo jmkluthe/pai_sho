@@ -1,16 +1,4 @@
 
-var move_matrix = [
-    {x: 0, y: 2},
-    {x: 0, y: -2},
-    {x: 2, y: 0},
-    {x: -2, y: 0},
-    {x: 1, y: 1},
-    {x: 1, y: -1},
-    {x: -1, y: -1},
-    {x: -1, y: 1},
-]
-
-
 Vue.component('piece', {
     props: ['piece'],
     data: function() {
@@ -58,8 +46,20 @@ Vue.component('space', {
 
 var boardVue = new Vue({
     el: '#board',
-    data: { board: null, state: null, moves: move_matrix },
+    data: { board: null, state: null, moves: null },
     mounted: function() {
+
+		var move_matrix = [
+			{x: 0, y: 2},
+			{x: 0, y: -2},
+			{x: 2, y: 0},
+			{x: -2, y: 0},
+			{x: 1, y: 1},
+			{x: 1, y: -1},
+			{x: -1, y: -1},
+			{x: -1, y: 1},
+		];
+		this.moves = move_matrix;
 
     	function make_spaces() {
 			var spaces = [];
