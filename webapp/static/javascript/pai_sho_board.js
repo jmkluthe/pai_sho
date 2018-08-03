@@ -1,39 +1,4 @@
 
-
-
-
-
-var pieces = [
-    {x: 0, y: 0, player: {number: 1, name: 'one'}, piece: {color: 'red'}},
-    {x: -2, y: 0, player: {number: 1, name: 'one'},  piece: {color: 'red'}},
-    {x: -1, y: 1, player: {number: 1, name: 'one'},  piece: {color: 'blue'}}
-];
-
-var STATE = {
-    turn: 0, players: [{number: 1, name: 'one'}, {number: 0, name: 'zero'}],
-    player_moving: 1, piece_selected: null, pieces: pieces, locked: false
-}
-
-var spaces = [];
-for(var i = -12; i < 13; i++) {
-    for(var j = -12; j < 13; j++) {
-        if(i*i + j*j <= 12.5*12.5 && (i + j) % 2 == 0) {
-            spaces.push({x: i, y: j, hasPiece: false, selectable: false, selected: false});
-        }
-    }
-}
-
-for(var i = 0; i < STATE.pieces.length; i++) {
-    var space = spaces.find(function(el) {
-        return el.x == STATE.pieces[i].x && el.y == STATE.pieces[i].y;
-    });
-    if(space != null) {
-        space.hasPiece = true;
-        space.selectable = true;
-        space.piece = STATE.pieces[i];
-    }
-}
-
 var move_matrix = [
     {x: 0, y: 2},
     {x: 0, y: -2},
@@ -93,7 +58,51 @@ Vue.component('space', {
 
 var boardVue = new Vue({
     el: '#board',
-    data: { board: spaces, state: STATE, moves: move_matrix },
+    data: { board: null, state: null, moves: move_matrix },
+    mounted: function() {
+
+    	function make_spaces() {
+			var spaces = [];
+			for(var i = -12; i < 13; i++) {
+				for(var j = -12; j < 13; j++) {
+					if(i*i + j*j <= 12.5*12.5 && (i + j) % 2 == 0) {
+						spaces.push({x: i, y: j, hasPiece: false, selectable: false, selected: false});
+					}
+				}
+			}
+			return spaces;
+    	}
+
+		function make_state(pieces) {
+			return {
+				turn: 0, players: [{number: 1, name: 'one'}, {number: 0, name: 'zero'}],
+				player_moving: 1, piece_selected: null, pieces: pieces, locked: false
+			};
+		}
+
+		function fill_spaces(STATE, spaces) {
+			for(var i = 0; i < STATE.pieces.length; i++) {
+				var space = spaces.find(function(el) {
+					return el.x == STATE.pieces[i].x && el.y == STATE.pieces[i].y;
+				});
+				if(space != null) {
+					space.hasPiece = true;
+					space.selectable = true;
+					space.piece = STATE.pieces[i];
+				}
+			}
+		}
+
+		var self = this;
+		$.post( "http://localhost:5000/api/get-initial", function(data) {
+			var spaces = make_spaces();
+			var state = make_state(data);
+			fill_spaces(state, spaces);
+			self.board = spaces;
+			self.state = state;
+		});
+
+    },
     methods: {
         move: function(value) {
             value.move_to.selected = true;
@@ -166,9 +175,7 @@ var boardVue = new Vue({
                         jump_space.selectable = true;
                     }
                 }
-
             }
-
         },
         make_pieces_selectable: function() {
             for(var i = 0; i < this.board.length; i++) {
@@ -181,7 +188,7 @@ var boardVue = new Vue({
             return this.board.find(function(el) {
                 return el.x == x && el.y == y;
             });
-        }
+        },
     },
     template: '#boardTemplate'
 });
