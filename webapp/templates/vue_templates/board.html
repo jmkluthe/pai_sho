@@ -1,15 +1,19 @@
 <script type="text/x-template" id="boardTemplate">
 
-    <div id="board-container">
-        <space
-                v-for="(space, index) in board"
-                :key="`space-${index}`"
-                v-bind:space="space"
-                v-bind:piece_selected="state.piece_selected"
-                v-on:move="move"
-                v-on:select="select">
-        </space>
-        <div id="background-container"></div>
+    <div>
+        <div id="board-container">
+            <space
+                    v-for="(space, index) in board"
+                    :key="`space-${index}`"
+                    v-bind:space="space"
+                    v-bind:piece_selected="state.piece_selected"
+                    v-bind:locked="state.locked"
+                    v-on:move="move"
+                    v-on:select="select">
+            </space>
+            <div id="background-container"></div>
+        </div>
+        <button type="button" v-on:click="end_turn">End Turn</button>
     </div>
 
 </script>

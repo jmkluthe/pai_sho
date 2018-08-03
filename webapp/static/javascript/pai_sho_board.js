@@ -11,7 +11,7 @@ var pieces = [
 
 var STATE = {
     turn: 0, players: [{number: 1, name: 'one'}, {number: 0, name: 'zero'}],
-    player_moving: 1, piece_selected: null, pieces: pieces
+    player_moving: 1, piece_selected: null, pieces: pieces, locked: false
 }
 
 var spaces = [];
@@ -55,7 +55,7 @@ Vue.component('piece', {
 });
 
 Vue.component('space', {
-    props: ['space', 'piece_selected'],
+    props: ['space', 'piece_selected', 'locked'],
     data: function() {
         var l = (335.85 + 28.2833*this.space.x) + 'px';
         var t = (340 - 28.2833*this.space.y) + 'px';
@@ -71,6 +71,7 @@ Vue.component('space', {
     methods: {
         parse_click: function() {
             if(!this.space.selectable && !this.space.selected) return;
+            if(this.space.selected && this.locked) return;
 
             if(this.piece_selected != null && !this.space.selected) {
                 this.move();
@@ -95,7 +96,10 @@ var boardVue = new Vue({
     data: { board: spaces, state: STATE, moves: move_matrix },
     methods: {
         move: function(value) {
+            value.move_to.selected = true;
             var old_space = this.find_space(value.piece.x, value.piece.y);
+            var distance = (value.move_to.x - value.piece.x)*(value.move_to.x - value.piece.x)
+                        + (value.move_to.y - value.piece.y)*(value.move_to.y - value.piece.y);
             value.piece.x = value.move_to.x;
             value.piece.y = value.move_to.y;
             value.move_to.hasPiece = true;
@@ -103,7 +107,37 @@ var boardVue = new Vue({
             old_space.hasPiece = false;
             old_space.piece = null;
             old_space.selected = false;
-            this.piece_selected = null;
+            if(distance === 4) {
+                this.end_turn(this.piece_selected);
+            } else {
+                this.make_jumps_selected(this.state.piece_selected);
+            }
+
+        },
+        make_jumps_selected: function(piece) {
+            for(var i = 0; i < this.board.length; i++) {
+                this.board[i].selectable = false;
+            }
+            var x = this.state.piece_selected.x;
+            var y = this.state.piece_selected.y;
+            for(var i = 0; i < this.moves.length; i++) {
+                var space = this.find_space(x + this.moves[i].x, y + this.moves[i].y);
+                if(space !== null && space.hasPiece) {
+                    var jump_space = this.find_space(space.x + this.moves[i].x, space.y + this.moves[i].y);
+                    if(jump_space !== null && !jump_space.hasPiece) {
+                        jump_space.selectable = true;
+                    }
+
+                }
+            }
+        },
+        end_turn: function(piece) {
+            console.log('fuckfuck');
+            this.state.piece_selected = null;
+            for(var i = 0; i < this.board.length; i++) {
+                this.board[i].selected = false;
+                this.board[i].selectable = false;
+            }
         },
         select: function(value) {
             value.selected = !value.selected;
