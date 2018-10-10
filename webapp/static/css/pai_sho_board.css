@@ -4,10 +4,7 @@
     width: 40px;
     height: 40px;
     padding: 0px;
-    margin-left: 4.1417px;
-    margin-right: 4.1417x;
     display: inline-block;
-    transform: rotate(-45deg);
     text-align: center;
 }
 
@@ -70,4 +67,23 @@
     height: 80%;
     margin: 10%;
     opacity: 1;
+    /*text-align: center;*/
+}
+
+.fake-border {
+    border-radius: 50%;
+    width: 80%;
+    height: 80%;
+    margin: 10%;
+    opacity: 1;
+    display: inline-block;
+    text-align: center;
+}
+
+.player0 {
+    background: black;
+}
+
+.player1 {
+    background: silver;
 }

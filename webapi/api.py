@@ -3,7 +3,7 @@ import requests #is this even necessary?
 from flask import jsonify
 from flask import request
 from webapi.piece import Piece
-
+import webapi.rules_config as rules_config
 
 api = Flask(__name__)
 
@@ -16,11 +16,10 @@ def after_request(response):
     return response
 
 
-@api.route('/api/get-initial', methods=["POST"])
-def get_initial():
-    spaces = make_spaces()
+@api.route('/api/get-initial-setup', methods=['GET'])
+def get_initial_setup():
     player1 = {'number': 1, 'name': 'one'}
-    player2 = {'number': 1, 'name': 'one'}
+    player0 = {'number': 0, 'name': 'zero'}
     pieces = [
         make_piece(-6, -8, player1, Piece.Fire),
         make_piece(-4, -8, player1, Piece.Water),
@@ -37,22 +36,28 @@ def get_initial():
         make_piece(6, -8, player1, Piece.Water),
         make_piece(0, -8, player1, Piece.Avatar),
 
-        make_piece(-6, 8, player2, Piece.Water),
-        make_piece(-4, 8, player2, Piece.Fire),
-        make_piece(-3, 7, player2, Piece.Air),
-        make_piece(-3, 9, player2, Piece.Earth),
-        make_piece(-2, 10, player2, Piece.Water),
-        make_piece(-1, 11, player2, Piece.Air),
-        make_piece(0, 12, player2, Piece.Lotus),
-        make_piece(1, 11, player2, Piece.Earth),
-        make_piece(2, 10, player2, Piece.Fire),
-        make_piece(3, 9, player2, Piece.Air),
-        make_piece(3, 7, player2, Piece.Earth),
-        make_piece(4, 8, player2, Piece.Water),
-        make_piece(6, 8, player2, Piece.Fire),
-        make_piece(0, 8, player2, Piece.Avatar),
+        make_piece(-6, 8, player0, Piece.Water),
+        make_piece(-4, 8, player0, Piece.Fire),
+        make_piece(-3, 7, player0, Piece.Air),
+        make_piece(-3, 9, player0, Piece.Earth),
+        make_piece(-2, 10, player0, Piece.Water),
+        make_piece(-1, 11, player0, Piece.Air),
+        make_piece(0, 12, player0, Piece.Lotus),
+        make_piece(1, 11, player0, Piece.Earth),
+        make_piece(2, 10, player0, Piece.Fire),
+        make_piece(3, 9, player0, Piece.Air),
+        make_piece(3, 7, player0, Piece.Earth),
+        make_piece(4, 8, player0, Piece.Water),
+        make_piece(6, 8, player0, Piece.Fire),
+        make_piece(0, 8, player0, Piece.Avatar),
     ]
     return jsonify(pieces)
+
+
+@api.route('/api/get-rules', methods=['GET'])
+def get_rules():
+    rules = {'move_matrix': rules_config.move_matrix, 'take_matrix': rules_config.take_matrix}
+    return jsonify(rules)
 
 
 @api.route('/api/move', methods=["POST"])
@@ -69,18 +74,6 @@ def process_data():
     return
 
 
-def make_spaces():
-    spaces = []
-    for i in range(-12, 13):
-        for j in range(-12, 13):
-            if i * i + j * j <= 12.5 * 12.5 and (i + j) % 2 == 0:
-                spaces.append({'x': i,
-                               'y': j,
-                               'hasPiece': False,
-                               'selectable': False,
-                               'selected': False})
-    return spaces
+def make_piece(x, y, player, element):
+    return {'x': x, 'y': y, 'player': player, 'element': element}
 
-
-def make_piece(x, y, player, piece):
-    return {'x': x, 'y': y, 'player': player, 'piece': piece}

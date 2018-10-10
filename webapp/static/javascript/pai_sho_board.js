@@ -2,7 +2,7 @@
 Vue.component('piece', {
     props: ['piece'],
     data: function() {
-        return {style: {background: this.piece.piece.color}}
+        return {style: {background: this.piece.element.color}}
     },
     template: '#pieceTemplate'
 });
@@ -10,8 +10,12 @@ Vue.component('piece', {
 Vue.component('space', {
     props: ['space', 'piece_selected', 'locked'],
     data: function() {
-        var l = (335.85 + 28.2833*this.space.x) + 'px';
+        var l = (340 + 28.2833*this.space.x) + 'px';
         var t = (340 - 28.2833*this.space.y) + 'px';
+/*        var l = (335.85 + 28.2833*this.space.x) + 'px';
+        var t = (340 - 28.2833*this.space.y) + 'px';*/
+/*        var l = (340 + 20*this.space.x) + 'px';
+        var t = (340 - 20*this.space.y) + 'px';*/
         return {style: {top: t, left: l}}
     },
     computed: {overlayClasses: function() {
@@ -42,11 +46,9 @@ Vue.component('space', {
     template: '#spaceTemplate'
 });
 
-
-
 var boardVue = new Vue({
     el: '#board',
-    data: { board: null, state: null, moves: null },
+    data: { board: null, state: null, moves: null, takes: null },
     mounted: function() {
 
 		var move_matrix = [
@@ -61,12 +63,22 @@ var boardVue = new Vue({
 		];
 		this.moves = move_matrix;
 
+        var takes = {
+            fire: ['air', 'avatar'],
+            air: ['water', 'avatar'],
+            water: ['earth', 'avatar'],
+            earth: ['fire', 'avatar'],
+            lotus: [],
+            avatar: ['air', 'water', 'earth', 'fire', 'avatar'],
+        };
+        this.takes = takes;
+
     	function make_spaces() {
 			var spaces = [];
 			for(var i = -12; i < 13; i++) {
 				for(var j = -12; j < 13; j++) {
 					if(i*i + j*j <= 12.5*12.5 && (i + j) % 2 == 0) {
-						spaces.push({x: i, y: j, hasPiece: false, selectable: false, selected: false});
+						spaces.push({x: i, y: j, has_piece: false, selectable: false, selected: false});
 					}
 				}
 			}
@@ -80,50 +92,53 @@ var boardVue = new Vue({
 			};
 		}
 
-		function fill_spaces(STATE, spaces) {
-			for(var i = 0; i < STATE.pieces.length; i++) {
+		function fill_spaces(state, spaces) {
+			for(var i = 0; i < state.pieces.length; i++) {
 				var space = spaces.find(function(el) {
-					return el.x == STATE.pieces[i].x && el.y == STATE.pieces[i].y;
+					return el.x == state.pieces[i].x && el.y == state.pieces[i].y;
 				});
 				if(space != null) {
-					space.hasPiece = true;
-					space.selectable = true;
-					space.piece = STATE.pieces[i];
+					space.has_piece = true;
+					space.piece = state.pieces[i];
 				}
 			}
 		}
 
 		var self = this;
-		$.post( "http://localhost:5000/api/get-initial", function(data) {
+		$.get( "http://localhost:5000/api/get-initial-setup", function(data) {
 			var spaces = make_spaces();
 			var state = make_state(data);
 			fill_spaces(state, spaces);
 			self.board = spaces;
 			self.state = state;
+			self.make_pieces_selectable();
 		});
 
     },
     methods: {
         move: function(value) {
+            this.state.locked = true;
             value.move_to.selected = true;
             var old_space = this.find_space(value.piece.x, value.piece.y);
             var distance = (value.move_to.x - value.piece.x)*(value.move_to.x - value.piece.x)
                         + (value.move_to.y - value.piece.y)*(value.move_to.y - value.piece.y);
             value.piece.x = value.move_to.x;
             value.piece.y = value.move_to.y;
-            value.move_to.hasPiece = true;
+            value.move_to.has_piece = true;
             value.move_to.piece = value.piece;
-            old_space.hasPiece = false;
+            old_space.has_piece = false;
             old_space.piece = null;
             old_space.selected = false;
-            if(distance === 4) {
-                this.end_turn(this.piece_selected);
+            if(distance <= 4 || this.state.piece_selected.element.type === 'lotus') {
+                this.end_turn();
             } else {
-                this.make_jumps_selected(this.state.piece_selected);
+                this.make_jumps_selectable(old_space);
             }
-
+            if(this.board.filter(s => s.selectable === true).length === 0) {
+                this.end_turn();
+            }
         },
-        make_jumps_selected: function(piece) {
+        make_jumps_selectable: function(old_space) {
             for(var i = 0; i < this.board.length; i++) {
                 this.board[i].selectable = false;
             }
@@ -131,21 +146,64 @@ var boardVue = new Vue({
             var y = this.state.piece_selected.y;
             for(var i = 0; i < this.moves.length; i++) {
                 var space = this.find_space(x + this.moves[i].x, y + this.moves[i].y);
-                if(space !== null && space.hasPiece) {
+                if(space != null && space.has_piece && space.piece.player.number === this.state.player_moving) {
                     var jump_space = this.find_space(space.x + this.moves[i].x, space.y + this.moves[i].y);
-                    if(jump_space !== null && !jump_space.hasPiece) {
+                    if(jump_space != null && !jump_space.has_piece) {
                         jump_space.selectable = true;
                     }
-
                 }
             }
+            old_space.selectable = false;
         },
-        end_turn: function(piece) {
-            console.log('fuckfuck');
+        get_enemies: function(space) {
+            var enemies = [];
+            for(var i = 0; i < this.moves.length; i++) {
+                var test = this.find_space(space.x + this.moves[i].x, space.y + this.moves[i].y);
+                if(test && test.has_piece && test.piece.player.number !== this.state.player_moving) {
+                    enemies.push(test.piece);
+                }
+            }
+            return enemies;
+        },
+        end_turn: function() {
+            this.take_pieces(this.state.piece_selected);
             this.state.piece_selected = null;
+            this.state.locked = false;
             for(var i = 0; i < this.board.length; i++) {
                 this.board[i].selected = false;
                 this.board[i].selectable = false;
+            }
+            var nextPlayer = this.state.players.filter(p => p.number !== this.state.player_moving)[0];
+            this.state.player_moving = nextPlayer.number;
+
+            var lotus = this.get_lotus(this.state.player_moving);
+            var lotus_space = this.find_space(lotus.x, lotus.y);
+            var enemies = this.get_enemies(lotus_space);
+            if(enemies.length > 0) {
+                this.state.piece_selected = lotus;
+                this.state.locked = true;
+                lotus_space.selected = true;
+                this.make_moves_selectable();
+            } else {
+                this.make_pieces_selectable();
+            }
+        },
+        declare_winner: function(player) {
+            console.log(player.player.name);
+        },
+        take_pieces: function(piece) {
+            var space = this.find_space(piece.x, piece.y);
+            var enemies = this.get_enemies(space);
+            for(var i = 0; i < enemies.length; i++) {
+                if(this.takes[piece.element.type].includes(enemies[i].element.type)) {
+                    var space = this.find_space(enemies[i].x, enemies[i].y);
+                    space.has_piece = false;
+                    space.piece = null;
+                    var index = this.state.pieces.findIndex(function(piece) {
+                        piece === enemies[i];
+                    });
+                    this.state.pieces.splice(index, 1);
+                }
             }
         },
         select: function(value) {
@@ -158,7 +216,7 @@ var boardVue = new Vue({
                 this.make_pieces_selectable();
             }
         },
-        make_moves_selectable: function(value) {
+        make_moves_selectable: function() {
             for(var i = 0; i < this.board.length; i++) {
                 this.board[i].selectable = false;
             }
@@ -166,12 +224,19 @@ var boardVue = new Vue({
             var y = this.state.piece_selected.y;
             for(var i = 0; i < this.moves.length; i++) {
                 var space = this.find_space(x + this.moves[i].x, y + this.moves[i].y);
-                if(space === null) continue;
-                if(!space.hasPiece) {
-                    space.selectable = true;
-                } else {
+                if(space == null) continue;
+                if(!space.has_piece) {
+                    if(this.state.piece_selected.element.type !== 'lotus') {
+                        space.selectable = true;
+                    } else {
+                        if(this.get_enemies(space).length === 0) {
+                            space.selectable = true;
+                        }
+                    }
+
+                } else if(this.state.piece_selected.element.type !== 'lotus' && space.piece.player.number === this.state.player_moving) {
                     var jump_space = this.find_space(space.x + this.moves[i].x, space.y + this.moves[i].y);
-                    if(jump_space !== null && !jump_space.hasPiece) {
+                    if(jump_space != null && !jump_space.has_piece) {
                         jump_space.selectable = true;
                     }
                 }
@@ -180,15 +245,20 @@ var boardVue = new Vue({
         make_pieces_selectable: function() {
             for(var i = 0; i < this.board.length; i++) {
                 this.board[i].selectable =
-                    (this.board[i].hasPiece &&
-                    this.board[i].piece.player.number == this.state.player_moving);
+                    (this.board[i].has_piece &&
+                    (this.board[i].piece.player.number === this.state.player_moving));
             }
         },
         find_space: function(x, y) {
             return this.board.find(function(el) {
-                return el.x == x && el.y == y;
+                return el.x === x && el.y === y;
             });
         },
+        get_lotus: function(player_number) {
+            return this.state.pieces.find(function(el) {
+                return el.player.number === player_number && el.element.type === 'lotus';
+            });
+        }
     },
     template: '#boardTemplate'
 });

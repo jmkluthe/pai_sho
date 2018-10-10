@@ -26,7 +26,7 @@
             v-on:click="parse_click">
         <piece
                 v-bind:piece="space.piece"
-                v-if="space.hasPiece">
+                v-if="space.has_piece">
         </piece>
         <div v-bind:class="overlayClasses"></div>
     </div>
@@ -35,6 +35,8 @@
 
 <script type="text/x-template" id="pieceTemplate">
 
-    <div class="piece" v-bind:style="style"></div>
+    <div class="fake-border" v-bind:class="{'player0' : piece.player.number === 0, 'player1' : piece.player.number === 1}">
+        <div class="piece" v-bind:style="style"></div>
+    </div>
 
 </script>
