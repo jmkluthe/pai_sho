@@ -14,7 +14,7 @@ class Piece(object):
         self.player = player
         self.element = element
 
-    def serialize(self):
+    def serializable(self):
         return dict(
             x=self.x,
             y=self.y,

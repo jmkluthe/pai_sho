@@ -10,7 +10,7 @@ class Space(object):
         self.selected = selected
         self.piece = piece
 
-    def serialize(self):
+    def serializable(self):
         return dict(
             x=self.x,
             y=self.y,

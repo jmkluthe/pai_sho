@@ -12,6 +12,7 @@
                     v-on:select="select">
             </space>
             <div id="background-container"></div>
+            <winner v-if="winner != null" v-bind:player="player"></winner>
         </div>
         <button type="button" v-on:click="end_turn">End Turn</button>
     </div>
@@ -39,4 +40,10 @@
         <div class="piece" v-bind:style="style"></div>
     </div>
 
+</script>
+
+<script type="text/x-template" id="winnerTemplate">
+    <div id="winner">
+        {% raw %}{{ winner.name }}{% endraw %} wins!
+    </div>
 </script>

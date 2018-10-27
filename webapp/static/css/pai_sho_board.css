@@ -87,3 +87,9 @@
 .player1 {
     background: silver;
 }
+
+#winner {
+    background: black;
+    color: red;
+    z-index: 2;
+}

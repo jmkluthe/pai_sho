@@ -7,6 +7,11 @@ Vue.component('piece', {
     template: '#pieceTemplate'
 });
 
+Vue.component('winner', {
+    props: ['player'],
+    template: '#winnerTemplate'
+});
+
 Vue.component('space', {
     props: ['space', 'piece_selected', 'locked'],
     data: function() {
@@ -48,7 +53,7 @@ Vue.component('space', {
 
 var boardVue = new Vue({
     el: '#board',
-    data: { board: null, state: null, moves: null, takes: null },
+    data: { board: null, state: null, moves: null, takes: null, winner: null },
     mounted: function() {
 
 		var move_matrix = [
@@ -166,6 +171,11 @@ var boardVue = new Vue({
             return enemies;
         },
         end_turn: function() {
+            var oldLotus = this.get_lotus(this.state.player_moving);
+            if(oldLotus.x === 0 && oldLotus.y === 0) {
+                this.declare_winner(this.state.player_moving);
+                return;
+            }
             this.take_pieces(this.state.piece_selected);
             this.state.piece_selected = null;
             this.state.locked = false;
@@ -174,6 +184,7 @@ var boardVue = new Vue({
                 this.board[i].selectable = false;
             }
             var nextPlayer = this.state.players.filter(p => p.number !== this.state.player_moving)[0];
+            var oldPlayerNumber = this.state.player_moving;
             this.state.player_moving = nextPlayer.number;
 
             var lotus = this.get_lotus(this.state.player_moving);
@@ -184,12 +195,21 @@ var boardVue = new Vue({
                 this.state.locked = true;
                 lotus_space.selected = true;
                 this.make_moves_selectable();
+                var moves = this.board.filter(s => s.selectable);
+                if(moves.length === 0) {
+                    this.declare_winner(oldPlayerNumber);
+                }
             } else {
                 this.make_pieces_selectable();
             }
         },
-        declare_winner: function(player) {
-            console.log(player.player.name);
+        declare_winner: function(player_number) {
+            var player = this.state.players.filter(p => p.number === player_number)[0];
+            console.log(player.name);
+            for(var i = 0; i < this.board.length; i++) {
+                this.board[i].selectable = false;
+            }
+            this.winner = player;
         },
         take_pieces: function(piece) {
             var space = this.find_space(piece.x, piece.y);
