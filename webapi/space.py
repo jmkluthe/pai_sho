@@ -1,6 +1,8 @@
+from webapi.utilities.class_to_dictionaries import slots_object_to_dictionary
 
 
 class Space(object):
+    __slots__ = ['x', 'y', 'has_piece', 'selectable', 'selected', 'piece']
 
     def __init__(self, x, y, has_piece=False, selectable=False, selected=False, piece=None):
         self.x = x
@@ -11,12 +13,5 @@ class Space(object):
         self.piece = piece
 
     def serializable(self):
-        return dict(
-            x=self.x,
-            y=self.y,
-            has_piece=self.has_piece,
-            selectable=self.selectable,
-            selected=self.selected,
-            piece=self.piece.serialize()
-        )
+        return slots_object_to_dictionary(self)
 

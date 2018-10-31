@@ -1,6 +1,8 @@
+from webapi.utilities.class_to_dictionaries import slots_object_to_dictionary
 
 
 class Piece(object):
+    __slots__ = ['x', 'y', 'player', 'element']
     Fire = {'type': 'fire', 'color': 'red'}
     Air = {'type': 'air', 'color': 'gold'}
     Water = {'type': 'water', 'color': 'blue'}
@@ -15,10 +17,11 @@ class Piece(object):
         self.element = element
 
     def serializable(self):
-        return dict(
-            x=self.x,
-            y=self.y,
-            player=self.player,
-            element=self.element
-        )
+        slots_object_to_dictionary(self)
+        # return dict(
+        #     x=self.x,
+        #     y=self.y,
+        #     player=self.player,
+        #     element=self.element
+        # )
 

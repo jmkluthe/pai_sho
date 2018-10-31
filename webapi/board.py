@@ -33,9 +33,6 @@ class Board(object):
     def find_piece(self, x, y):
         pass
 
-    # def make_piece(self, x, y, player, piece):
-    #     return {'x': x, 'y': y, 'player': player, 'piece': piece}
-
     def make_initial_pieces(self):
         pieces = [
             Piece(-6, -8, self.player1, Piece.Fire),
