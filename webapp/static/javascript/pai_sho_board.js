@@ -17,10 +17,6 @@ Vue.component('space', {
     data: function() {
         var l = (340 + 28.2833*this.space.x) + 'px';
         var t = (340 - 28.2833*this.space.y) + 'px';
-/*        var l = (335.85 + 28.2833*this.space.x) + 'px';
-        var t = (340 - 28.2833*this.space.y) + 'px';*/
-/*        var l = (340 + 20*this.space.x) + 'px';
-        var t = (340 - 20*this.space.y) + 'px';*/
         return {style: {top: t, left: l}}
     },
     computed: {overlayClasses: function() {
@@ -92,7 +88,7 @@ var boardVue = new Vue({
 
 		function make_state(pieces) {
 			return {
-				turn: 0, players: [{number: 1, name: 'one'}, {number: 0, name: 'zero'}],
+				turn: 0, players: [{number: 0, name: 'zero'}, {number: 1, name: 'one'}],
 				player_moving: 1, piece_selected: null, pieces: pieces, locked: false
 			};
 		}
@@ -151,7 +147,7 @@ var boardVue = new Vue({
             var y = this.state.piece_selected.y;
             for(var i = 0; i < this.moves.length; i++) {
                 var space = this.find_space(x + this.moves[i].x, y + this.moves[i].y);
-                if(space != null && space.has_piece && space.piece.player.number === this.state.player_moving) {
+                if(space != null && space.has_piece && space.piece.player_number === this.state.player_moving) {
                     var jump_space = this.find_space(space.x + this.moves[i].x, space.y + this.moves[i].y);
                     if(jump_space != null && !jump_space.has_piece) {
                         jump_space.selectable = true;
@@ -164,7 +160,7 @@ var boardVue = new Vue({
             var enemies = [];
             for(var i = 0; i < this.moves.length; i++) {
                 var test = this.find_space(space.x + this.moves[i].x, space.y + this.moves[i].y);
-                if(test && test.has_piece && test.piece.player.number !== this.state.player_moving) {
+                if(test && test.has_piece && test.piece.player_number !== this.state.player_moving) {
                     enemies.push(test.piece);
                 }
             }
@@ -183,9 +179,10 @@ var boardVue = new Vue({
                 this.board[i].selected = false;
                 this.board[i].selectable = false;
             }
-            var nextPlayer = this.state.players.filter(p => p.number !== this.state.player_moving)[0];
+            //var nextPlayer = this.state.players.filter(p => p.number !== this.state.player_moving)[0];
+            var nextPlayerNumber = this.swap_player(this.state.player_moving);
             var oldPlayerNumber = this.state.player_moving;
-            this.state.player_moving = nextPlayer.number;
+            this.state.player_moving = nextPlayerNumber;
 
             var lotus = this.get_lotus(this.state.player_moving);
             var lotus_space = this.find_space(lotus.x, lotus.y);
@@ -203,8 +200,12 @@ var boardVue = new Vue({
                 this.make_pieces_selectable();
             }
         },
+        swap_player: function(player_number) {
+            return + !player_number;
+        },
         declare_winner: function(player_number) {
-            var player = this.state.players.filter(p => p.number === player_number)[0];
+            //var player = this.state.players.filter(p => p.number === player_number)[0];
+            var player = this.state.players[player_number];
             console.log(player.name);
             for(var i = 0; i < this.board.length; i++) {
                 this.board[i].selectable = false;
@@ -254,7 +255,7 @@ var boardVue = new Vue({
                         }
                     }
 
-                } else if(this.state.piece_selected.element.type !== 'lotus' && space.piece.player.number === this.state.player_moving) {
+                } else if(this.state.piece_selected.element.type !== 'lotus' && space.piece.player_number === this.state.player_moving) {
                     var jump_space = this.find_space(space.x + this.moves[i].x, space.y + this.moves[i].y);
                     if(jump_space != null && !jump_space.has_piece) {
                         jump_space.selectable = true;
@@ -266,7 +267,7 @@ var boardVue = new Vue({
             for(var i = 0; i < this.board.length; i++) {
                 this.board[i].selectable =
                     (this.board[i].has_piece &&
-                    (this.board[i].piece.player.number === this.state.player_moving));
+                    (this.board[i].piece.player_number === this.state.player_moving));
             }
         },
         find_space: function(x, y) {
@@ -276,7 +277,7 @@ var boardVue = new Vue({
         },
         get_lotus: function(player_number) {
             return this.state.pieces.find(function(el) {
-                return el.player.number === player_number && el.element.type === 'lotus';
+                return el.player_number === player_number && el.element.type === 'lotus';
             });
         }
     },

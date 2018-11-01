@@ -36,7 +36,7 @@
 
 <script type="text/x-template" id="pieceTemplate">
 
-    <div class="fake-border" v-bind:class="{'player0' : piece.player.number === 0, 'player1' : piece.player.number === 1}">
+    <div class="fake-border" v-bind:class="{'player0' : piece.player_number === 0, 'player1' : piece.player_number === 1}">
         <div class="piece" v-bind:style="style"></div>
     </div>
 

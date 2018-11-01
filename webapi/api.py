@@ -1,5 +1,5 @@
 from flask import Flask
-import requests #is this even necessary?
+import requests  # is this even necessary?
 from flask import jsonify
 from flask import request
 from webapi.piece import Piece
@@ -18,8 +18,8 @@ def after_request(response):
 
 @api.route('/api/get-initial-setup', methods=['GET'])
 def get_initial_setup():
-    player1 = {'number': 1, 'name': 'one'}
-    player0 = {'number': 0, 'name': 'zero'}
+    player1 = 1  # {'number': 1, 'name': 'one'}
+    player0 = 0  # {'number': 0, 'name': 'zero'}
     pieces = [
         make_piece(-6, -8, player1, Piece.Fire),
         make_piece(-4, -8, player1, Piece.Water),
@@ -75,5 +75,4 @@ def process_data():
 
 
 def make_piece(x, y, player, element):
-    return {'x': x, 'y': y, 'player': player, 'element': element}
-
+    return {'x': x, 'y': y, 'player_number': player, 'element': element}
