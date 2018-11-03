@@ -1,4 +1,4 @@
-from webapi.utilities.class_to_dictionaries import slots_object_to_dictionary
+from webapi.utilities.class_to_dictionaries import slots_object_to_dictionary, jsonize
 
 
 class Space(object):
@@ -15,3 +15,5 @@ class Space(object):
     def serializable(self):
         return slots_object_to_dictionary(self)
 
+    def __str__(self):
+        return jsonize(self)

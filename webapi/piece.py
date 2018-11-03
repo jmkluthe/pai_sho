@@ -1,4 +1,4 @@
-from webapi.utilities.class_to_dictionaries import slots_object_to_dictionary
+from webapi.utilities.class_to_dictionaries import slots_object_to_dictionary, jsonize
 
 
 class Piece(object):
@@ -24,4 +24,7 @@ class Piece(object):
         #     player=self.player,
         #     element=self.element
         # )
+
+    def __str__(self):
+        return jsonize(self)
 

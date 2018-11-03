@@ -8,7 +8,7 @@ Vue.component('piece', {
 });
 
 Vue.component('winner', {
-    props: ['player'],
+    props: ['winner'],
     template: '#winnerTemplate'
 });
 
@@ -88,7 +88,9 @@ var boardVue = new Vue({
 
 		function make_state(pieces) {
 			return {
-				turn: 0, players: [{number: 0, name: 'zero'}, {number: 1, name: 'one'}],
+//				turn: 0, players: [{number: 0, name: 'zero'}, {number: 1, name: 'one'}],
+//				player_moving: 1, piece_selected: null, pieces: pieces, locked: false
+                turn: 0, players: { 0: { name: 'Computer', type: 0 }, 1: { name: 'Human', type: 1 } },
 				player_moving: 1, piece_selected: null, pieces: pieces, locked: false
 			};
 		}
@@ -213,6 +215,7 @@ var boardVue = new Vue({
             this.winner = player;
         },
         take_pieces: function(piece) {
+            if(piece === null) return;
             var space = this.find_space(piece.x, piece.y);
             var enemies = this.get_enemies(space);
             for(var i = 0; i < enemies.length; i++) {

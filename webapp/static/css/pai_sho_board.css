@@ -89,6 +89,7 @@
 }
 
 #winner {
+    position: relative;
     background: black;
     color: red;
     z-index: 2;

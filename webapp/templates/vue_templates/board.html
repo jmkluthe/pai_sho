@@ -2,17 +2,16 @@
 
     <div>
         <div id="board-container">
-            <space
-                    v-for="(space, index) in board"
-                    :key="`space-${index}`"
-                    v-bind:space="space"
-                    v-bind:piece_selected="state.piece_selected"
-                    v-bind:locked="state.locked"
-                    v-on:move="move"
-                    v-on:select="select">
+            <space v-for="(space, index) in board"
+                   :key="`space-${index}`"
+                   v-bind:space="space"
+                   v-bind:piece_selected="state.piece_selected"
+                   v-bind:locked="state.locked"
+                   v-on:move="move"
+                   v-on:select="select">
             </space>
             <div id="background-container"></div>
-            <winner v-if="winner != null" v-bind:player="player"></winner>
+            <winner v-if="winner != null" v-bind:winner="winner"></winner>
         </div>
         <button type="button" v-on:click="end_turn">End Turn</button>
     </div>
@@ -21,13 +20,11 @@
 
 <script type="text/x-template" id="spaceTemplate">
 
-    <div
-            class="space"
-            v-bind:style="style"
-            v-on:click="parse_click">
-        <piece
-                v-bind:piece="space.piece"
-                v-if="space.has_piece">
+    <div class="space"
+         v-bind:style="style"
+         v-on:click="parse_click">
+        <piece v-bind:piece="space.piece"
+               v-if="space.has_piece">
         </piece>
         <div v-bind:class="overlayClasses"></div>
     </div>
