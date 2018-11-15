@@ -12,7 +12,7 @@ def jsonize(obj):
     NOT circular reference safe if the obj__str__() method continues recursively
     """
     attrs = get_public_attributes(obj)
-    return jsonify({key: obj.__getattribute__(key) for key in attrs})
+    return jsonify({key: str(obj.__getattribute__(key)) for key in attrs})
 
 
 def get_public_attributes(obj):

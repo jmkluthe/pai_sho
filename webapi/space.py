@@ -1,4 +1,5 @@
 from webapi.utilities.class_to_dictionaries import slots_object_to_dictionary, jsonize
+from flask import json
 
 
 class Space(object):
@@ -13,7 +14,15 @@ class Space(object):
         self.piece = piece
 
     def serializable(self):
-        return slots_object_to_dictionary(self)
+        return dict(
+            x=self.x,
+            y=self.y,
+            has_piece=self.has_piece,
+            selectable=self.selectable,
+            selected=self.selected,
+            piece=str(self.piece)
+        )
 
     def __str__(self):
-        return jsonize(self)
+        return json.dumps(self.serializable())
+

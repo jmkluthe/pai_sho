@@ -1,4 +1,5 @@
 from webapi.utilities.class_to_dictionaries import slots_object_to_dictionary, jsonize
+from flask import json
 
 
 class Piece(object):
@@ -17,14 +18,14 @@ class Piece(object):
         self.element = element
 
     def serializable(self):
-        slots_object_to_dictionary(self)
-        # return dict(
-        #     x=self.x,
-        #     y=self.y,
-        #     player=self.player,
-        #     element=self.element
-        # )
+        # return slots_object_to_dictionary(self)
+        return dict(
+            x=self.x,
+            y=self.y,
+            player=self.player,
+            element=self.element
+        )
 
     def __str__(self):
-        return jsonize(self)
+        return json.dumps(self.serializable())
 

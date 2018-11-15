@@ -1,10 +1,11 @@
 from flask import Flask
 #import requests
-from flask import jsonify
+from flask import jsonify, json
 from flask import request
 from webapi.piece import Piece
 import webapi.rules_config as rules_config
 from webapi.game import Game
+import sys
 
 api = Flask(__name__)
 
@@ -53,7 +54,7 @@ def get_initial_setup():
         make_piece(0, 8, player0, Piece.Avatar),
     ]
     players = [{'number': 1, 'name': 'one'}, {'number': 0, 'name': 'zero'}]
-    print(Game(players))
+    print(Game(players).serializable(), file=sys.stderr)
     return jsonify(pieces)
 
 
