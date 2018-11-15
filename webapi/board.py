@@ -1,7 +1,5 @@
 from webapi.piece import Piece
 from webapi.space import Space
-from webapi.utilities.class_to_dictionaries import jsonize, slots_object_to_dictionary
-from flask import json
 
 class Board(object):
     __slots__ = ['spaces', 'pieces']
@@ -65,13 +63,9 @@ class Board(object):
         ]
         return pieces
 
-    def serializable(self):
-        # return slots_object_to_dictionary(self)
+    def asdict(self):
         return dict(
-            spaces=[str(space) for space in self.spaces],
-            pieces=[str(piece )for piece in self.pieces]
+            spaces=[(None if space is None else space.asdict()) for space in self.spaces],
+            pieces=[(None if piece is None else piece.asdict()) for piece in self.pieces]
         )
-
-    def __str__(self):
-        return json.dumps(self.serializable())
 

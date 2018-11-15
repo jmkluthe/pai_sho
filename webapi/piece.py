@@ -17,7 +17,7 @@ class Piece(object):
         self.player = player
         self.element = element
 
-    def serializable(self):
+    def asdict(self):
         # return slots_object_to_dictionary(self)
         return dict(
             x=self.x,
@@ -25,7 +25,4 @@ class Piece(object):
             player=self.player,
             element=self.element
         )
-
-    def __str__(self):
-        return json.dumps(self.serializable())
 

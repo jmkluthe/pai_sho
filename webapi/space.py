@@ -13,7 +13,7 @@ class Space(object):
         self.selected = selected
         self.piece = piece
 
-    def serializable(self):
+    def asdict(self):
         return dict(
             x=self.x,
             y=self.y,
@@ -22,7 +22,4 @@ class Space(object):
             selected=self.selected,
             piece=str(self.piece)
         )
-
-    def __str__(self):
-        return json.dumps(self.serializable())
 

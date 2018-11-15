@@ -1,7 +1,5 @@
 import webapi.rules_config as rules
 from webapi.board import Board
-from webapi.utilities.class_to_dictionaries import jsonize, slots_object_to_dictionary
-from flask import jsonify, json
 
 
 class Game(object):
@@ -28,12 +26,12 @@ class Game(object):
         self.game_id = None
         self.game_name = None
 
-    def serializable(self):
+    def asdict(self):
         return dict(
             move_matrix=self.move_matrix,
             take_matrix=self.take_matrix,
             players=self.players,
-            board=str(self.board),
+            board=None if self.board is None else self.board.asdict(),
             player_moving=self.player_moving,
             turn_number=self.turn_number,
             winner=self.winner,
@@ -41,8 +39,4 @@ class Game(object):
             game_id=self.game_id,
             game_name=self.game_name
         )
-
-    def __str__(self):
-        return json.dumps(self.serializable())
-
 
