@@ -20,6 +20,6 @@ class Space(object):
             has_piece=self.has_piece,
             selectable=self.selectable,
             selected=self.selected,
-            piece=str(self.piece)
+            piece=None if self.piece is None else self.piece.asdict()
         )
 

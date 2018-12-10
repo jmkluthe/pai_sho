@@ -66,7 +66,7 @@ var boardVue = new Vue({
 
 		function make_state(game) {
 			return {
-                turn: game.turn_number, players: game.players, player_moving: game.player_moving,
+                turn_number: game.turn_number, players: game.players, player_moving: game.player_moving,
                 piece_selected: null, pieces: game.board.pieces, locked: false,
                 moves: game.moves, current_move: game.current_move
 			};
@@ -186,6 +186,7 @@ var boardVue = new Vue({
             }
             this.state.moves.push(JSON.parse(JSON.stringify(this.state.current_move)));
             this.state.current_move = null;
+            this.state.turn_number++;
             console.log(JSON.stringify(this.state.moves, null, 2));
         },
         swap_player: function(player_number) {

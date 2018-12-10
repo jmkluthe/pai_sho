@@ -69,3 +69,9 @@ class Board(object):
             pieces=[(None if piece is None else piece.asdict()) for piece in self.pieces]
         )
 
+    @classmethod
+    def fromdict(cls, board_dict):
+        board = Board(board_dict)
+        board.pieces = [Piece(p.x, p.y, p.player_number, p.element) for p in board_dict['pieces']]
+        return board
+
