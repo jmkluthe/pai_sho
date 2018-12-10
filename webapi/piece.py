@@ -3,7 +3,7 @@ from flask import json
 
 
 class Piece(object):
-    __slots__ = ['x', 'y', 'player', 'element']
+    __slots__ = ['x', 'y', 'player_number', 'element']
     Fire = {'type': 'fire', 'color': 'red'}
     Air = {'type': 'air', 'color': 'gold'}
     Water = {'type': 'water', 'color': 'blue'}
@@ -11,10 +11,10 @@ class Piece(object):
     Lotus = {'type': 'lotus', 'color': 'lightsteelblue'}
     Avatar = {'type': 'avatar', 'color': 'purple'}
 
-    def __init__(self, x, y, player, element):
+    def __init__(self, x, y, player_number, element):
         self.x = x
         self.y = y
-        self.player = player
+        self.player_number = player_number
         self.element = element
 
     def asdict(self):
@@ -22,7 +22,7 @@ class Piece(object):
         return dict(
             x=self.x,
             y=self.y,
-            player=self.player,
+            player_number=self.player_number,
             element=self.element
         )
 

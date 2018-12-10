@@ -49,30 +49,8 @@ Vue.component('space', {
 
 var boardVue = new Vue({
     el: '#board',
-    data: { board: null, state: null, moves: null, takes: null, winner: null },
+    data: { board: null, state: null, move_matrix: null, take_matrix: null, winner: null },
     mounted: function() {
-
-		var move_matrix = [
-			{x: 0, y: 2},
-			{x: 0, y: -2},
-			{x: 2, y: 0},
-			{x: -2, y: 0},
-			{x: 1, y: 1},
-			{x: 1, y: -1},
-			{x: -1, y: -1},
-			{x: -1, y: 1},
-		];
-		this.moves = move_matrix;
-
-        var takes = {
-            fire: ['air', 'avatar'],
-            air: ['water', 'avatar'],
-            water: ['earth', 'avatar'],
-            earth: ['fire', 'avatar'],
-            lotus: [],
-            avatar: ['air', 'water', 'earth', 'fire', 'avatar'],
-        };
-        this.takes = takes;
 
     	function make_spaces() {
 			var spaces = [];
@@ -86,12 +64,11 @@ var boardVue = new Vue({
 			return spaces;
     	}
 
-		function make_state(pieces) {
+		function make_state(game) {
 			return {
-//				turn: 0, players: [{number: 0, name: 'zero'}, {number: 1, name: 'one'}],
-//				player_moving: 1, piece_selected: null, pieces: pieces, locked: false
-                turn: 0, players: { 0: { name: 'Computer', type: 0 }, 1: { name: 'Human', type: 1 } },
-				player_moving: 1, piece_selected: null, pieces: pieces, locked: false
+                turn: game.turn_number, players: game.players, player_moving: game.player_moving,
+                piece_selected: null, pieces: game.board.pieces, locked: false,
+                moves: game.moves, current_move: game.current_move
 			};
 		}
 
@@ -108,18 +85,22 @@ var boardVue = new Vue({
 		}
 
 		var self = this;
-		$.get( "http://localhost:5000/api/get-initial-setup", function(data) {
-			var spaces = make_spaces();
-			var state = make_state(data);
-			fill_spaces(state, spaces);
-			self.board = spaces;
-			self.state = state;
+		$.get( "http://localhost:5000/api/get-initial-setup", function(game) {
+			self.board = game.board.spaces;
+			self.state = make_state(game);
+			self.take_matrix = game.take_matrix;
+			self.move_matrix = game.move_matrix;
+			self.winner = game.winner;
+			fill_spaces(self.state, self.board);
 			self.make_pieces_selectable();
 		});
 
     },
     methods: {
         move: function(value) {
+        	if(!this.state.current_move) {
+        		this.state.current_move = this.generate_move(value.piece, this.state.player_moving);
+        	}
             this.state.locked = true;
             value.move_to.selected = true;
             var old_space = this.find_space(value.piece.x, value.piece.y);
@@ -132,6 +113,8 @@ var boardVue = new Vue({
             old_space.has_piece = false;
             old_space.piece = null;
             old_space.selected = false;
+            var enemies_taken = this.take_pieces(value.piece);
+            this.push_move_step(value.piece, enemies_taken);
             if(distance <= 4 || this.state.piece_selected.element.type === 'lotus') {
                 this.end_turn();
             } else {
@@ -147,10 +130,10 @@ var boardVue = new Vue({
             }
             var x = this.state.piece_selected.x;
             var y = this.state.piece_selected.y;
-            for(var i = 0; i < this.moves.length; i++) {
-                var space = this.find_space(x + this.moves[i].x, y + this.moves[i].y);
+            for(var i = 0; i < this.move_matrix.length; i++) {
+                var space = this.find_space(x + this.move_matrix[i].x, y + this.move_matrix[i].y);
                 if(space != null && space.has_piece && space.piece.player_number === this.state.player_moving) {
-                    var jump_space = this.find_space(space.x + this.moves[i].x, space.y + this.moves[i].y);
+                    var jump_space = this.find_space(space.x + this.move_matrix[i].x, space.y + this.move_matrix[i].y);
                     if(jump_space != null && !jump_space.has_piece) {
                         jump_space.selectable = true;
                     }
@@ -160,8 +143,8 @@ var boardVue = new Vue({
         },
         get_enemies: function(space) {
             var enemies = [];
-            for(var i = 0; i < this.moves.length; i++) {
-                var test = this.find_space(space.x + this.moves[i].x, space.y + this.moves[i].y);
+            for(var i = 0; i < this.move_matrix.length; i++) {
+                var test = this.find_space(space.x + this.move_matrix[i].x, space.y + this.move_matrix[i].y);
                 if(test && test.has_piece && test.piece.player_number !== this.state.player_moving) {
                     enemies.push(test.piece);
                 }
@@ -174,14 +157,14 @@ var boardVue = new Vue({
                 this.declare_winner(this.state.player_moving);
                 return;
             }
-            this.take_pieces(this.state.piece_selected);
+//            var enemies_taken = this.take_pieces(this.state.piece_selected);
+//            this.push_move_step(this.state.piece_selected, enemies_taken);
             this.state.piece_selected = null;
             this.state.locked = false;
             for(var i = 0; i < this.board.length; i++) {
                 this.board[i].selected = false;
                 this.board[i].selectable = false;
             }
-            //var nextPlayer = this.state.players.filter(p => p.number !== this.state.player_moving)[0];
             var nextPlayerNumber = this.swap_player(this.state.player_moving);
             var oldPlayerNumber = this.state.player_moving;
             this.state.player_moving = nextPlayerNumber;
@@ -201,12 +184,14 @@ var boardVue = new Vue({
             } else {
                 this.make_pieces_selectable();
             }
+            this.state.moves.push(JSON.parse(JSON.stringify(this.state.current_move)));
+            this.state.current_move = null;
+            console.log(JSON.stringify(this.state.moves, null, 2));
         },
         swap_player: function(player_number) {
             return + !player_number;
         },
         declare_winner: function(player_number) {
-            //var player = this.state.players.filter(p => p.number === player_number)[0];
             var player = this.state.players[player_number];
             console.log(player.name);
             for(var i = 0; i < this.board.length; i++) {
@@ -218,17 +203,21 @@ var boardVue = new Vue({
             if(piece === null) return;
             var space = this.find_space(piece.x, piece.y);
             var enemies = this.get_enemies(space);
+            var enemies_taken = [];
             for(var i = 0; i < enemies.length; i++) {
-                if(this.takes[piece.element.type].includes(enemies[i].element.type)) {
+                if(this.take_matrix[piece.element.type].includes(enemies[i].element.type)) {
                     var space = this.find_space(enemies[i].x, enemies[i].y);
                     space.has_piece = false;
                     space.piece = null;
-                    var index = this.state.pieces.findIndex(function(piece) {
-                        piece === enemies[i];
-                    });
+//                    var index = this.state.pieces.findIndex(function(piece) {
+//                        piece === enemies[i];
+//                    });
+					enemies_taken.push(enemies[i]);
+					var index = this.state.pieces.findIndex(p => p === enemies[i]);
                     this.state.pieces.splice(index, 1);
                 }
             }
+            return enemies_taken;
         },
         select: function(value) {
             value.selected = !value.selected;
@@ -246,8 +235,8 @@ var boardVue = new Vue({
             }
             var x = this.state.piece_selected.x;
             var y = this.state.piece_selected.y;
-            for(var i = 0; i < this.moves.length; i++) {
-                var space = this.find_space(x + this.moves[i].x, y + this.moves[i].y);
+            for(var i = 0; i < this.move_matrix.length; i++) {
+                var space = this.find_space(x + this.move_matrix[i].x, y + this.move_matrix[i].y);
                 if(space == null) continue;
                 if(!space.has_piece) {
                     if(this.state.piece_selected.element.type !== 'lotus') {
@@ -259,7 +248,7 @@ var boardVue = new Vue({
                     }
 
                 } else if(this.state.piece_selected.element.type !== 'lotus' && space.piece.player_number === this.state.player_moving) {
-                    var jump_space = this.find_space(space.x + this.moves[i].x, space.y + this.moves[i].y);
+                    var jump_space = this.find_space(space.x + this.move_matrix[i].x, space.y + this.move_matrix[i].y);
                     if(jump_space != null && !jump_space.has_piece) {
                         jump_space.selectable = true;
                     }
@@ -282,7 +271,20 @@ var boardVue = new Vue({
             return this.state.pieces.find(function(el) {
                 return el.player_number === player_number && el.element.type === 'lotus';
             });
-        }
+        },
+        push_move_step: function(space, takes) {
+        	this.state.current_move.move_steps.push({x: space.x, y: space.y, takes: takes.map(t => JSON.parse(JSON.stringify(t)))})
+        },
+        get_next_move: function() {
+        },
+        generate_move: function(piece, player_number) {
+        	return {
+        		player_number: player_number,
+        		//copy piece to preserve the initial state of the piece
+        		piece: JSON.parse(JSON.stringify(piece)),
+        		move_steps: []
+        	}
+        },
     },
     template: '#boardTemplate'
 });

@@ -49,6 +49,7 @@
     width: 720px;
     height: 720px;
     text-align: center;
+    background: lightblue;
 }
 
 #space-container {
@@ -94,3 +95,26 @@
     color: red;
     z-index: 2;
 }
+
+.piece-enter-active, .piece-leave-active {
+	opacity: 1;
+	transition: opacity 0.5s ease;
+}
+
+.piece-enter, .piece-leave {
+	opacity: 0;
+}
+
+#game-container {
+	display: inline-flex;
+	background: black;
+}
+
+#game-panel {
+	background: lightgreen;
+}
+
+.margin-10 {
+	margin: 10px;
+}
+

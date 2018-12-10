@@ -1,7 +1,7 @@
 <script type="text/x-template" id="boardTemplate">
 
-    <div>
-        <div id="board-container">
+    <div id="game-container">
+        <div id="board-container" class="margin-10">
             <space v-for="(space, index) in board"
                    :key="`space-${index}`"
                    v-bind:space="space"
@@ -13,7 +13,8 @@
             <div id="background-container"></div>
             <winner v-if="winner != null" v-bind:winner="winner"></winner>
         </div>
-        <button type="button" v-on:click="end_turn">End Turn</button>
+        <gamePanel v-on:end-turn="end_turn"></gamePanel>
+        <!--<button type="button" v-on:click="end_turn">End Turn</button>-->
     </div>
 
 </script>
@@ -23,9 +24,11 @@
     <div class="space"
          v-bind:style="style"
          v-on:click="parse_click">
-        <piece v-bind:piece="space.piece"
-               v-if="space.has_piece">
-        </piece>
+        <transition name="piece">
+            <piece v-bind:piece="space.piece"
+                   v-if="space.has_piece">
+            </piece>
+        </transition>
         <div v-bind:class="overlayClasses"></div>
     </div>
 
