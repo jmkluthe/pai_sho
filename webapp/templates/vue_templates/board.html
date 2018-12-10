@@ -13,8 +13,9 @@
             <div id="background-container"></div>
             <winner v-if="winner != null" v-bind:winner="winner"></winner>
         </div>
-        <gamePanel v-on:end-turn="end_turn"></gamePanel>
-        <!--<button type="button" v-on:click="end_turn">End Turn</button>-->
+        <gamePanel v-on:end-turn="end_turn"
+                   v-bind:end_turn_disabled="state === null ? true : !state.current_move">
+        </gamePanel>
     </div>
 
 </script>

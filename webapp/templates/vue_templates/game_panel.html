@@ -1,5 +1,9 @@
 <script type="text/x-template" id="gamePanelTemplate">
     <div id="game-panel" class="margin-10">
-        <button type="button" v-on:click="end_turn">End Turn</button>
+        <button type="button"
+                v-on:click="end_turn"
+                v-bind:disabled="end_turn_disabled">
+            End Turn
+        </button>
     </div>
 </script>

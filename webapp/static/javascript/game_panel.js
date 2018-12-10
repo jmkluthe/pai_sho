@@ -1,6 +1,6 @@
 
 Vue.component('gamePanel', {
-    props: [],
+    props: ['end_turn_disabled'],
 //    data: function() {
 //    },
     methods: {
