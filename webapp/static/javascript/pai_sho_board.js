@@ -285,11 +285,26 @@ var boardVue = new Vue({
         },
         get_next_move: function() {
         	//var dat = JSON.stringify(this.generate_game_object());
-        	var dat = this.generate_game_object();
-        	console.log(dat);
-        	return $.post(moveUrl, {json: dat}, function(data) {
-        		console.log(data);
-        	}, 'application/json');
+        	var dat = JSON.stringify(this.generate_game_object());
+//        	console.log(dat);
+//        	return $.post(moveUrl, {json: dat}, function(data) {
+//        		console.log(data);
+//        	}, 'application/json');
+//
+
+
+        	return $.ajax({
+                url: moveUrl,
+                type: "POST",
+                data: dat,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function(ret) {
+                    console.log(ret);
+                }
+            });
+
+
         },
         generate_move: function(piece, player_number) {
         	return {

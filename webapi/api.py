@@ -1,5 +1,5 @@
 from flask import Flask
-from flask import jsonify
+from flask import jsonify, json
 from flask import request
 from webapi.piece import Piece
 import webapi.rules_config as rules_config
@@ -34,11 +34,10 @@ def get_initial_setup():
 def move():
     try:
         req = request.get_json()
-        print(request.data)
-        print(request.__dict__)
-        print(req)
-        return jsonify({'error': True})
-    except:
+        pp.pprint(req)
+        return jsonify({'error': False})
+    except Exception as e:
+        print(e)
         return jsonify({'error': True})
 
 
