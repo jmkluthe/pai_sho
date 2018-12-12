@@ -1,4 +1,7 @@
 
+var initialUrl = "http://localhost:5000/api/get-initial-setup";
+var moveUrl = "http://localhost:5000/api/move";
+
 Vue.component('piece', {
     props: ['piece'],
     data: function() {
@@ -85,7 +88,7 @@ var boardVue = new Vue({
 		}
 
 		var self = this;
-		$.get( "http://localhost:5000/api/get-initial-setup", function(game) {
+		$.get(initialUrl, function(game) {
 			self.board = game.board.spaces;
 			self.state = make_state(game);
 			self.take_matrix = game.take_matrix;
@@ -185,9 +188,10 @@ var boardVue = new Vue({
                 this.make_pieces_selectable();
             }
             this.state.moves.push(JSON.parse(JSON.stringify(this.state.current_move)));
+            //console.log(JSON.stringify(this.generate_game_object(), null, 2));
+            this.get_next_move().then(this.play_computer_turn);
             this.state.current_move = null;
             this.state.turn_number++;
-            console.log(JSON.stringify(this.state.moves, null, 2));
         },
         swap_player: function(player_number) {
             return + !player_number;
@@ -219,6 +223,9 @@ var boardVue = new Vue({
                 }
             }
             return enemies_taken;
+        },
+        play_computer_turn: function(move) {
+        	console.log(move);
         },
         select: function(value) {
             value.selected = !value.selected;
@@ -277,6 +284,12 @@ var boardVue = new Vue({
         	this.state.current_move.move_steps.push({x: space.x, y: space.y, takes: takes.map(t => JSON.parse(JSON.stringify(t)))})
         },
         get_next_move: function() {
+        	//var dat = JSON.stringify(this.generate_game_object());
+        	var dat = this.generate_game_object();
+        	console.log(dat);
+        	return $.post(moveUrl, {json: dat}, function(data) {
+        		console.log(data);
+        	}, 'application/json');
         },
         generate_move: function(piece, player_number) {
         	return {
@@ -286,6 +299,19 @@ var boardVue = new Vue({
         		move_steps: []
         	}
         },
+        generate_game_object: function() {
+        	return {
+        		board: {
+        			//spaces: this.board,
+        			pieces: this.state.pieces
+        		},
+        		player_moving: this.state.player_moving,
+        		turn_number: this.state.turn_number,
+        		winner: this.winner,
+        		moves: this.state.moves,
+        		current_move: this.state.current_move,
+        	}
+        }
     },
     template: '#boardTemplate'
 });

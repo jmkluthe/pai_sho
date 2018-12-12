@@ -47,15 +47,14 @@ class Game(object):
     @classmethod
     def fromdict(cls, game_dict):
         game = Game(game_dict['players'], game_dict['game_id'])
-        # FIXME need to create a board with existing pieces!
         game.board = Board.fromdict(game_dict['board'])
         game.player_moving = game_dict['player_moving']
         game.turn_number = game_dict['turn_number']
         game.winner = game_dict['winner']
         game.moves = game_dict['moves']
         game.current_move = game_dict['current_move']
-        game.game_id = game_dict['game_id']
-        # FIXME actually need to use game names at some point
+        # FIXME actually need to use game names and ids at some point
+        game.game_id = None  # game_dict['game_id']
         game.game_name = None
         return game
 

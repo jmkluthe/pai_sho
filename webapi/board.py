@@ -16,6 +16,7 @@ class Board(object):
                     spaces.append(Space(i, j))
         return spaces
 
+    # TODO add pieces and space/piece finding methods not fully implemented
     def add_pieces(self, pieces):
         for piece in pieces:
             space = self.find_space(piece.x, piece.y)
