@@ -320,6 +320,7 @@ var boardVue = new Vue({
         			//spaces: this.board,
         			pieces: this.state.pieces
         		},
+        		players: this.state.players,
         		player_moving: this.state.player_moving,
         		turn_number: this.state.turn_number,
         		winner: this.winner,

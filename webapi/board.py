@@ -1,6 +1,7 @@
 from webapi.piece import Piece
 from webapi.space import Space
 
+
 class Board(object):
     __slots__ = ['spaces', 'pieces']
 
@@ -72,7 +73,7 @@ class Board(object):
 
     @classmethod
     def fromdict(cls, board_dict):
-        board = Board(board_dict)
-        board.pieces = [Piece(p.x, p.y, p.player_number, p.element) for p in board_dict['pieces']]
+        board = Board()
+        board.pieces = [Piece(p['x'], p['y'], p['player_number'], p['element']) for p in board_dict['pieces']]
         return board
 

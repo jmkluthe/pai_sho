@@ -34,7 +34,10 @@ def get_initial_setup():
 def move():
     try:
         req = request.get_json()
-        pp.pprint(req)
+        print(type(req))
+        game = Game.fromdict(req)
+        # print(type(game))
+        # pp.pprint(game.asdict())
         return jsonify({'error': False})
     except Exception as e:
         print(e)

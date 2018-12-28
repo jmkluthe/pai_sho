@@ -46,7 +46,7 @@ class Game(object):
 
     @classmethod
     def fromdict(cls, game_dict):
-        game = Game(game_dict['players'], game_dict['game_id'])
+        game = cls(game_dict['players'])
         game.board = Board.fromdict(game_dict['board'])
         game.player_moving = game_dict['player_moving']
         game.turn_number = game_dict['turn_number']
