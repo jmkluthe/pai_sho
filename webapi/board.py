@@ -10,12 +10,17 @@ class Board(object):
         self.pieces = self.make_initial_pieces(top_player_num, bottom_player_num)
 
     def make_spaces(self):
-        spaces = []
-        for i in range(-12, 13):
-            for j in range(-12, 13):
-                if i * i + j * j <= 12.5 * 12.5 and (i + j) % 2 == 0:
-                    spaces.append(Space(i, j))
-        return spaces
+        return [Space(i, j)
+                for i in range(-12, 13)
+                for j in range(-12, 13)
+                if i * i + j * j <= 12.5 * 12.5 and (i + j) % 2 == 0]
+        # leaving translation below since it is clearer
+        # spaces = []
+        # for i in range(-12, 13):
+        #     for j in range(-12, 13):
+        #         if i * i + j * j <= 12.5 * 12.5 and (i + j) % 2 == 0:
+        #             spaces.append(Space(i, j))
+        # return spaces
 
     # TODO add pieces and space/piece finding methods not fully implemented
     def add_pieces(self, pieces):
@@ -76,4 +81,3 @@ class Board(object):
         board = Board()
         board.pieces = [Piece(p['x'], p['y'], p['player_number'], p['element']) for p in board_dict['pieces']]
         return board
-
