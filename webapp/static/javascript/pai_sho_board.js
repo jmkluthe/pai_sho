@@ -4,8 +4,10 @@ var moveUrl = "http://localhost:5000/api/move";
 
 Vue.component('piece', {
     props: ['piece'],
-    data: function() {
-        return {style: {background: this.piece.element.color}}
+    computed: {
+    	style: function() {
+			return {background: this.piece.element.color};
+		}
     },
     template: '#pieceTemplate'
 });
@@ -55,17 +57,17 @@ var boardVue = new Vue({
     data: { board: null, state: null, move_matrix: null, take_matrix: null, winner: null },
     mounted: function() {
 
-    	function make_spaces() {
-			var spaces = [];
-			for(var i = -12; i < 13; i++) {
-				for(var j = -12; j < 13; j++) {
-					if(i*i + j*j <= 12.5*12.5 && (i + j) % 2 == 0) {
-						spaces.push({x: i, y: j, has_piece: false, selectable: false, selected: false});
-					}
-				}
-			}
-			return spaces;
-    	}
+//    	function make_spaces() {
+//			var spaces = [];
+//			for(var i = -12; i < 13; i++) {
+//				for(var j = -12; j < 13; j++) {
+//					if(i*i + j*j <= 12.5*12.5 && (i + j) % 2 == 0) {
+//						spaces.push({x: i, y: j, has_piece: false, selectable: false, selected: false});
+//					}
+//				}
+//			}
+//			return spaces;
+//    	}
 
 		function make_state(game) {
 			return {
@@ -118,6 +120,9 @@ var boardVue = new Vue({
             old_space.selected = false;
             var enemies_taken = this.take_pieces(value.piece);
             this.push_move_step(value.piece, enemies_taken);
+
+            this.restore_avatar();
+
             if(distance <= 4 || this.state.piece_selected.element.type === 'lotus') {
                 this.end_turn();
             } else {
@@ -160,8 +165,6 @@ var boardVue = new Vue({
                 this.declare_winner(this.state.player_moving);
                 return;
             }
-//            var enemies_taken = this.take_pieces(this.state.piece_selected);
-//            this.push_move_step(this.state.piece_selected, enemies_taken);
             this.state.piece_selected = null;
             this.state.locked = false;
             for(var i = 0; i < this.board.length; i++) {
@@ -188,7 +191,6 @@ var boardVue = new Vue({
                 this.make_pieces_selectable();
             }
             this.state.moves.push(JSON.parse(JSON.stringify(this.state.current_move)));
-            //console.log(JSON.stringify(this.generate_game_object(), null, 2));
             this.get_next_move().then(this.play_computer_turn);
             this.state.current_move = null;
             this.state.turn_number++;
@@ -214,15 +216,33 @@ var boardVue = new Vue({
                     var space = this.find_space(enemies[i].x, enemies[i].y);
                     space.has_piece = false;
                     space.piece = null;
-//                    var index = this.state.pieces.findIndex(function(piece) {
-//                        piece === enemies[i];
-//                    });
 					enemies_taken.push(enemies[i]);
 					var index = this.state.pieces.findIndex(p => p === enemies[i]);
                     this.state.pieces.splice(index, 1);
                 }
             }
             return enemies_taken;
+        },
+        restore_avatar: function() {
+        	var self = this;
+        	function has_avatar(player_number) {
+        		var test = self.state.pieces.filter(p => p.player_number === player_number && p.element.type === 'avatar');
+        		return test.length > 0;
+        	}
+        	$.each(this.state.players, function(player_number) {
+        		player_number = parseInt(player_number);
+        		if(has_avatar(player_number)) return;
+        		var y_pos = player_number === 0 ? 8 : -8;
+        		var avatar_space = self.find_space(0, y_pos);
+        		if(avatar_space.has_piece === false) {
+        			setTimeout(function() {
+						var avatar = {x: 0, y: y_pos, player_number: player_number, element: {type: 'avatar', color: 'purple'}};
+						avatar_space.piece = avatar;
+						avatar_space.has_piece = true;
+						self.state.pieces.push(avatar);
+        			}, 1000);
+				}
+        	});
         },
         play_computer_turn: function(move) {
         	console.log(move);
