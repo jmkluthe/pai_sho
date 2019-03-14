@@ -57,18 +57,6 @@ var boardVue = new Vue({
     data: { board: null, state: null, move_matrix: null, take_matrix: null, winner: null },
     mounted: function() {
 
-//    	function make_spaces() {
-//			var spaces = [];
-//			for(var i = -12; i < 13; i++) {
-//				for(var j = -12; j < 13; j++) {
-//					if(i*i + j*j <= 12.5*12.5 && (i + j) % 2 == 0) {
-//						spaces.push({x: i, y: j, has_piece: false, selectable: false, selected: false});
-//					}
-//				}
-//			}
-//			return spaces;
-//    	}
-
 		function make_state(game) {
 			return {
                 turn_number: game.turn_number, players: game.players, player_moving: game.player_moving,
@@ -123,7 +111,7 @@ var boardVue = new Vue({
 
             this.restore_avatar();
 
-            if(distance <= 4 || this.state.piece_selected.element.type === 'lotus') {
+            if(distance <= 4 || this.state.piece_selected.element.type === 'LOTUS') {
                 this.end_turn();
             } else {
                 this.make_jumps_selectable(old_space);
@@ -193,7 +181,7 @@ var boardVue = new Vue({
             this.state.moves.push(JSON.parse(JSON.stringify(this.state.current_move)));
             this.get_next_move().then(this.play_computer_turn);
             this.state.current_move = null;
-            this.state.turn_number++;
+            //this.state.turn_number++;
         },
         swap_player: function(player_number) {
             return + !player_number;
@@ -224,9 +212,12 @@ var boardVue = new Vue({
             return enemies_taken;
         },
         restore_avatar: function() {
+        //TODO: push this as a move step, yeah?
         	var self = this;
         	function has_avatar(player_number) {
-        		var test = self.state.pieces.filter(p => p.player_number === player_number && p.element.type === 'avatar');
+        		var test = self.state.pieces.filter(
+        			p => p.player_number === player_number && p.element.type === 'AVATAR'
+				);
         		return test.length > 0;
         	}
         	$.each(this.state.players, function(player_number) {
@@ -235,12 +226,15 @@ var boardVue = new Vue({
         		var y_pos = player_number === 0 ? 8 : -8;
         		var avatar_space = self.find_space(0, y_pos);
         		if(avatar_space.has_piece === false) {
-        			setTimeout(function() {
-						var avatar = {x: 0, y: y_pos, player_number: player_number, element: {type: 'avatar', color: 'purple'}};
+        			//setTimeout(function() {
+						var avatar = {x: 0,
+									  y: y_pos,
+									  player_number: player_number,
+									  element: {type: 'AVATAR', color: 'purple'} };
 						avatar_space.piece = avatar;
 						avatar_space.has_piece = true;
 						self.state.pieces.push(avatar);
-        			}, 1000);
+        			//}, 1000);
 				}
         	});
         },
@@ -267,7 +261,7 @@ var boardVue = new Vue({
                 var space = this.find_space(x + this.move_matrix[i].x, y + this.move_matrix[i].y);
                 if(space == null) continue;
                 if(!space.has_piece) {
-                    if(this.state.piece_selected.element.type !== 'lotus') {
+                    if(this.state.piece_selected.element.type !== 'LOTUS') {
                         space.selectable = true;
                     } else {
                         if(this.get_enemies(space).length === 0) {
@@ -275,8 +269,11 @@ var boardVue = new Vue({
                         }
                     }
 
-                } else if(this.state.piece_selected.element.type !== 'lotus' && space.piece.player_number === this.state.player_moving) {
-                    var jump_space = this.find_space(space.x + this.move_matrix[i].x, space.y + this.move_matrix[i].y);
+                } else if(this.state.piece_selected.element.type !== 'LOTUS'
+                		  && space.piece.player_number === this.state.player_moving) {
+                    var jump_space = this.find_space(
+                    	space.x + this.move_matrix[i].x, space.y + this.move_matrix[i].y
+                    );
                     if(jump_space != null && !jump_space.has_piece) {
                         jump_space.selectable = true;
                     }
@@ -297,11 +294,13 @@ var boardVue = new Vue({
         },
         get_lotus: function(player_number) {
             return this.state.pieces.find(function(el) {
-                return el.player_number === player_number && el.element.type === 'lotus';
+                return el.player_number === player_number && el.element.type === 'LOTUS';
             });
         },
         push_move_step: function(space, takes) {
-        	this.state.current_move.move_steps.push({x: space.x, y: space.y, takes: takes.map(t => JSON.parse(JSON.stringify(t)))})
+        	this.state.current_move.move_steps.push(
+        		{x: space.x, y: space.y, takes: takes.map(t => JSON.parse(JSON.stringify(t)))}
+        	);
         },
         get_next_move: function() {
         	//var dat = JSON.stringify(this.generate_game_object());
@@ -327,11 +326,28 @@ var boardVue = new Vue({
 
         },
         generate_move: function(piece, player_number) {
+        	//make sure turn number has been initialized
+        	if(typeof(this.state.turn_number) !== typeof(1)) {
+        		this.state.turn_number = 0;
+        	}
+        	var app = this;
         	return {
         		player_number: player_number,
+        		move_number: app.state.turn_number++,
+        		total_steps = 0,
         		//copy piece to preserve the initial state of the piece
+        		//SHOULD we do this? Could skip the 'from' in addStep ...
         		piece: JSON.parse(JSON.stringify(piece)),
-        		move_steps: []
+        		steps: [],
+        		addStep: function(move_type, from_x, from_y, to_x, to_y) {
+        			var move = this;
+					move.steps.push({
+						move_type: move_type,
+						step_number: move.total_steps++,
+						initial_position: {x: from_x, y: from_y},
+						final_position: {x: to_x, y: to_y}
+					});
+        		}
         	}
         },
         generate_game_object: function() {

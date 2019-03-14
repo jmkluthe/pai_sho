@@ -1,5 +1,6 @@
 from webapi.piece import Piece
 from webapi.space import Space
+from webapi.game_constants import Elements
 
 
 class Board(object):
@@ -38,35 +39,35 @@ class Board(object):
 
     def make_initial_pieces(self, top_player_num, bottom_player_num):
         pieces = [
-            Piece(-6, -8, bottom_player_num, Piece.Fire),
-            Piece(-4, -8, bottom_player_num, Piece.Water),
-            Piece(-3, -7, bottom_player_num, Piece.Earth),
-            Piece(-3, -9, bottom_player_num, Piece.Air),
-            Piece(-2, -10, bottom_player_num, Piece.Fire),
-            Piece(-1, -11, bottom_player_num, Piece.Earth),
-            Piece(0, -12, bottom_player_num, Piece.Lotus),
-            Piece(1, -11, bottom_player_num, Piece.Air),
-            Piece(2, -10, bottom_player_num, Piece.Water),
-            Piece(3, -9, bottom_player_num, Piece.Earth),
-            Piece(3, -7, bottom_player_num, Piece.Air),
-            Piece(4, -8, bottom_player_num, Piece.Fire),
-            Piece(6, -8, bottom_player_num, Piece.Water),
-            Piece(0, -8, bottom_player_num, Piece.Avatar),
+            Piece(-6, -8, bottom_player_num, Elements.FIRE),
+            Piece(-4, -8, bottom_player_num, Elements.WATER),
+            Piece(-3, -7, bottom_player_num, Elements.EARTH),
+            Piece(-3, -9, bottom_player_num, Elements.AIR),
+            Piece(-2, -10, bottom_player_num, Elements.FIRE),
+            Piece(-1, -11, bottom_player_num, Elements.EARTH),
+            Piece(0, -12, bottom_player_num, Elements.LOTUS),
+            Piece(1, -11, bottom_player_num, Elements.AIR),
+            Piece(2, -10, bottom_player_num, Elements.WATER),
+            Piece(3, -9, bottom_player_num, Elements.EARTH),
+            Piece(3, -7, bottom_player_num, Elements.AIR),
+            Piece(4, -8, bottom_player_num, Elements.FIRE),
+            Piece(6, -8, bottom_player_num, Elements.WATER),
+            Piece(0, -8, bottom_player_num, Elements.AVATAR),
 
-            Piece(-6, 8, top_player_num, Piece.Water),
-            Piece(-4, 8, top_player_num, Piece.Fire),
-            Piece(-3, 7, top_player_num, Piece.Air),
-            Piece(-3, 9, top_player_num, Piece.Earth),
-            Piece(-2, 10, top_player_num, Piece.Water),
-            Piece(-1, 11, top_player_num, Piece.Air),
-            Piece(0, 12, top_player_num, Piece.Lotus),
-            Piece(1, 11, top_player_num, Piece.Earth),
-            Piece(2, 10, top_player_num, Piece.Fire),
-            Piece(3, 9, top_player_num, Piece.Air),
-            Piece(3, 7, top_player_num, Piece.Earth),
-            Piece(4, 8, top_player_num, Piece.Water),
-            Piece(6, 8, top_player_num, Piece.Fire),
-            Piece(0, 8, top_player_num, Piece.Avatar),
+            Piece(-6, 8, top_player_num, Elements.WATER),
+            Piece(-4, 8, top_player_num, Elements.FIRE),
+            Piece(-3, 7, top_player_num, Elements.AIR),
+            Piece(-3, 9, top_player_num, Elements.EARTH),
+            Piece(-2, 10, top_player_num, Elements.WATER),
+            Piece(-1, 11, top_player_num, Elements.AIR),
+            Piece(0, 12, top_player_num, Elements.LOTUS),
+            Piece(1, 11, top_player_num, Elements.EARTH),
+            Piece(2, 10, top_player_num, Elements.FIRE),
+            Piece(3, 9, top_player_num, Elements.AIR),
+            Piece(3, 7, top_player_num, Elements.EARTH),
+            Piece(4, 8, top_player_num, Elements.WATER),
+            Piece(6, 8, top_player_num, Elements.FIRE),
+            Piece(0, 8, top_player_num, Elements.AVATAR),
         ]
         return pieces
 

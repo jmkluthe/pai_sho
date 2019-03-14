@@ -2,7 +2,7 @@ from flask import Flask
 from flask import jsonify, json
 from flask import request
 from webapi.piece import Piece
-import webapi.rules_config as rules_config
+import webapi.game_constants as constants
 from webapi.game import Game
 import sys
 import pprint as pp
@@ -35,7 +35,7 @@ def move():
     try:
         req = request.get_json()
         print(type(req))
-        game = Game.fromdict(req)
+        # game = Game.fromdict(req)
         # print(type(game))
         # pp.pprint(game.asdict())
         return jsonify({'error': False})

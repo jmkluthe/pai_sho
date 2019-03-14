@@ -1,4 +1,4 @@
-import webapi.rules_config as rules
+import webapi.game_constants as constants
 from webapi.board import Board
 from uuid import uuid4
 
@@ -17,8 +17,8 @@ class Game(object):
                  'game_name']
 
     def __init__(self, players, game_id=uuid4()):
-        self.move_matrix = rules.move_matrix
-        self.take_matrix = rules.take_matrix
+        self.move_matrix = constants.MoveMatrix.as_list()
+        self.take_matrix = constants.TakeMatrix.as_dict()
         self.players = players
         self.board = Board()
         self.player_moving = 1
@@ -28,6 +28,8 @@ class Game(object):
         self.current_move = None
         self.game_id = game_id
         self.game_name = None
+        print(self.move_matrix)
+        print(self.take_matrix)
 
     def asdict(self):
         return dict(
