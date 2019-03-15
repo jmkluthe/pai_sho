@@ -19,12 +19,14 @@ class Position(object):
 class MoveStep(object):
     __slots__ = ['move_type',
                  'step_number',
+                 'takes',
                  'initial_position',
                  'final_position']
 
-    def __init__(self, move_type, step_number, initial_position, final_position):
+    def __init__(self, move_type, step_number, takes, initial_position, final_position):
         self.move_type = move_type
         self.step_number = step_number
+        self.takes = takes
         self.initial_position = initial_position
         self.final_position = final_position
 

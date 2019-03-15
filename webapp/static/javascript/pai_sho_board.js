@@ -5,8 +5,11 @@ var moveUrl = "http://localhost:5000/api/move";
 Vue.component('piece', {
     props: ['piece'],
     computed: {
-    	style: function() {
-			return {background: this.piece.element.color};
+//    	style: function() {
+//			return {background: this.piece.element.color};
+//		}
+		classes: function() {
+			return "piece " + this.piece.element;
 		}
     },
     template: '#pieceTemplate'
@@ -107,11 +110,12 @@ var boardVue = new Vue({
             old_space.piece = null;
             old_space.selected = false;
             var enemies_taken = this.take_pieces(value.piece);
-            this.push_move_step(value.piece, enemies_taken);
+            //TODO: replace this with addStep
+            //this.push_move_step(value.piece, enemies_taken);
 
             this.restore_avatar();
 
-            if(distance <= 4 || this.state.piece_selected.element.type === 'LOTUS') {
+            if(distance <= 4 || this.state.piece_selected.element === 'LOTUS') {
                 this.end_turn();
             } else {
                 this.make_jumps_selectable(old_space);
@@ -200,7 +204,7 @@ var boardVue = new Vue({
             var enemies = this.get_enemies(space);
             var enemies_taken = [];
             for(var i = 0; i < enemies.length; i++) {
-                if(this.take_matrix[piece.element.type].includes(enemies[i].element.type)) {
+                if(this.take_matrix[piece.element].includes(enemies[i].element)) {
                     var space = this.find_space(enemies[i].x, enemies[i].y);
                     space.has_piece = false;
                     space.piece = null;
@@ -216,7 +220,7 @@ var boardVue = new Vue({
         	var self = this;
         	function has_avatar(player_number) {
         		var test = self.state.pieces.filter(
-        			p => p.player_number === player_number && p.element.type === 'AVATAR'
+        			p => p.player_number === player_number && p.element === 'AVATAR'
 				);
         		return test.length > 0;
         	}
@@ -230,7 +234,7 @@ var boardVue = new Vue({
 						var avatar = {x: 0,
 									  y: y_pos,
 									  player_number: player_number,
-									  element: {type: 'AVATAR', color: 'purple'} };
+									  element: 'AVATAR'};
 						avatar_space.piece = avatar;
 						avatar_space.has_piece = true;
 						self.state.pieces.push(avatar);
@@ -261,7 +265,7 @@ var boardVue = new Vue({
                 var space = this.find_space(x + this.move_matrix[i].x, y + this.move_matrix[i].y);
                 if(space == null) continue;
                 if(!space.has_piece) {
-                    if(this.state.piece_selected.element.type !== 'LOTUS') {
+                    if(this.state.piece_selected.element !== 'LOTUS') {
                         space.selectable = true;
                     } else {
                         if(this.get_enemies(space).length === 0) {
@@ -269,7 +273,7 @@ var boardVue = new Vue({
                         }
                     }
 
-                } else if(this.state.piece_selected.element.type !== 'LOTUS'
+                } else if(this.state.piece_selected.element !== 'LOTUS'
                 		  && space.piece.player_number === this.state.player_moving) {
                     var jump_space = this.find_space(
                     	space.x + this.move_matrix[i].x, space.y + this.move_matrix[i].y
@@ -294,7 +298,7 @@ var boardVue = new Vue({
         },
         get_lotus: function(player_number) {
             return this.state.pieces.find(function(el) {
-                return el.player_number === player_number && el.element.type === 'LOTUS';
+                return el.player_number === player_number && el.element === 'LOTUS';
             });
         },
         push_move_step: function(space, takes) {
@@ -334,22 +338,24 @@ var boardVue = new Vue({
         	return {
         		player_number: player_number,
         		move_number: app.state.turn_number++,
-        		total_steps = 0,
+        		total_steps: 0,
         		//copy piece to preserve the initial state of the piece
         		//SHOULD we do this? Could skip the 'from' in addStep ...
-        		piece: JSON.parse(JSON.stringify(piece)),
+        		piece: app.copy_json(piece),
         		steps: [],
-        		addStep: function(move_type, from_x, from_y, to_x, to_y) {
+        		addStep: function(move_type, takes, from_x, from_y, to_x, to_y) {
         			var move = this;
 					move.steps.push({
 						move_type: move_type,
 						step_number: move.total_steps++,
+						takes: takes.map(t => app.copy_json(t)),
 						initial_position: {x: from_x, y: from_y},
 						final_position: {x: to_x, y: to_y}
 					});
         		}
         	}
         },
+        //TODO: fix this probably
         generate_game_object: function() {
         	return {
         		board: {
@@ -363,6 +369,9 @@ var boardVue = new Vue({
         		moves: this.state.moves,
         		current_move: this.state.current_move,
         	}
+        },
+        copy_json: function(obj) {
+        	return JSON.parse(JSON.stringify(obj))
         }
     },
     template: '#boardTemplate'

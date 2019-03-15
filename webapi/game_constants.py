@@ -12,12 +12,12 @@ class EnumDict(Enum):
 
 
 class Elements(EnumDict):
-    FIRE = {'type': 'FIRE', 'color': 'red'}
-    AIR = {'type': 'AIR', 'color': 'gold'}
-    WATER = {'type': 'WATER', 'color': 'blue'}
-    EARTH = {'type': 'EARTH', 'color': 'green'}
-    LOTUS = {'type': 'LOTUS', 'color': 'lightsteelblue'}
-    AVATAR = {'type': 'AVATAR', 'color': 'purple'}
+    FIRE = 'FIRE'
+    AIR = 'AIR'
+    WATER = 'WATER'
+    EARTH = 'EARTH'
+    LOTUS = 'LOTUS'
+    AVATAR = 'AVATAR'
 
 
 class TakeMatrix(EnumDict):

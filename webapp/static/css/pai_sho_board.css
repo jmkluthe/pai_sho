@@ -118,3 +118,26 @@
 	margin: 10px;
 }
 
+.piece.avatar {
+	background: purple;
+}
+
+.piece.lotus {
+	background: lightsteelblue;
+}
+
+.piece.fire {
+	background: red;
+}
+
+.piece.air {
+	background: gold;
+}
+
+.piece.earth {
+	background: green;
+}
+
+.piece.water {
+	background: blue;
+}
