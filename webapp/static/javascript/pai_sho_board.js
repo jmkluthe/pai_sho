@@ -5,9 +5,6 @@ var moveUrl = "http://localhost:5000/api/move";
 Vue.component('piece', {
     props: ['piece'],
     computed: {
-//    	style: function() {
-//			return {background: this.piece.element.color};
-//		}
 		classes: function() {
 			return "piece " + this.piece.element;
 		}
